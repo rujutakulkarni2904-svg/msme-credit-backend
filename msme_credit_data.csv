@@ -1,0 +1,11 @@
+business_name,business_age_years,monthly_revenue_lakhs,transaction_frequency_per_month,avg_settlement_days,gst_compliance_score,payment_consistency_score,traditional_approved,cashflow_risk_score,cashflow_approved,sim_loan_amount_lakhs
+Rice Mill Surat,8,45.2,185,28,0.92,0.87,0,34.72,1,15.07
+Garment Factory Tiruppur,12,32.8,142,35,0.78,0.71,1,53.77,0,10.93
+Spice Trader Kochi,5,28.5,210,22,0.95,0.93,0,35.87,1,9.5
+Textile Weavers Bhilwara,15,52.1,167,41,0.85,0.82,0,41.18,0,17.37
+Auto Parts Supplier Delhi,3,18.9,89,19,0.88,0.79,0,58.9,0,6.3
+Pharma Distributor Indore,7,41.3,198,31,0.91,0.89,0,38.44,1,13.77
+Electronics Retailer Mumbai,10,29.7,156,26,0.83,0.76,0,45.67,0,9.9
+Steel Fabricator Jamshedpur,6,67.4,234,38,0.76,0.68,0,31.57,1,22.47
+Food Processing Unit Nashik,9,23.6,123,24,0.94,0.91,0,49.23,0,7.87
+Leather Goods Kanpur,4,19.2,95,33,0.81,0.74,0,71.36,0,6.4
