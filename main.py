@@ -4,29 +4,25 @@ import pandas as pd
 import joblib
 import io
 
-# ----- FastAPI app -----
 app = FastAPI(
     title="MSME Cash Flow Credit Scoring API",
     description="Compares traditional collateral approvals vs cash-flow model for Indian MSMEs.",
     version="1.0.0",
 )
 
-# Allow frontend (Vercel) to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # later you can restrict to your Vercel domain
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load trained model
 try:
     model = joblib.load("model.pkl")
 except Exception as e:
     model = None
-    print("⚠️ Could not load model.pkl:", e)
+    print("Could not load model.pkl:", e)
 
-# Features used for scoring
 FEATURE_COLUMNS = [
     "business_age_years",
     "monthly_revenue_lakhs",
@@ -42,9 +38,6 @@ async def root():
 
 @app.get("/sample-portfolio")
 async def sample_portfolio():
-    """
-    Returns the 10 predefined MSMEs + portfolio metrics (trad vs cash-flow).
-    """
     try:
         df = pd.read_csv("msme_credit_data.csv")
     except Exception as e:
@@ -68,11 +61,7 @@ async def sample_portfolio():
         },
     }
 
-def _auto_fix_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Try to map messy user columns to our expected feature columns.
-    Minimal smart behavior so hiring managers don't see crashes.
-    """
+def _auto_fix_columns(df):
     col_map = {}
     lower_cols = {c.lower(): c for c in df.columns}
 
@@ -105,9 +94,6 @@ def _auto_fix_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 @app.post("/score")
 async def score_portfolio(file: UploadFile = File(...)):
-    """
-    Accepts a CSV file, auto-fixes column names, runs model, returns risk + approvals.
-    """
     if model is None:
         raise HTTPException(status_code=500, detail="Model not loaded on server.")
 
@@ -133,14 +119,21 @@ async def score_portfolio(file: UploadFile = File(...)):
     X = df[FEATURE_COLUMNS]
 
     try:
-        probs = model.predict_proba(X)[:, 1]  # probability of approval
+        probs = model.predict_proba(X)[:, 1]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Model prediction failed: {e}")
 
     df["approval_probability"] = probs
-    df["risk_score"] = (1 - df["approval_probability"]) * 100  # lower is better
+    df["risk_score"] = (1 - df["approval_probability"]) * 100
     df["approved"] = (df["risk_score"] < 40).astype(int)
 
     portfolio = {
         "count": int(len(df)),
-        "approved_count
+        "approved_count": int(df["approved"].sum()),
+        "approval_rate_pct": float(df["approved"].mean() * 100),
+    }
+
+    return {
+        "portfolio_summary": portfolio,
+        "rows": df.to_dict(orient="records"),
+    }
